@@ -31,7 +31,7 @@ library(rattle)
 library(randomForest)
 library(knitr)
 set.seed(12)
-
+setwd("~/Documents/Coursera R/8. Machine Learning")
 trainUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 testUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
 
@@ -46,8 +46,7 @@ myTraining <- training[inTrain, ]
 myTesting <- training[-inTrain, ]
 ```
 
-## Cleaning Data
-Remove NAs and useless column
+## Remove NAs and useless column for future prediction
 ```{r}
 nzv <- nearZeroVar(myTraining, saveMetrics=TRUE)
 myTraining <- myTraining[,nzv$nzv==FALSE]
@@ -86,11 +85,11 @@ testing <- rbind(myTraining[2, -58] , testing)
 testing <- testing[-1,]
 ```
 
-## Precition with Decision Trees
+## Training Decision Trees
+
 ```{r}
 set.seed(1)
 modFitA1 <- rpart(classe ~ ., data=myTraining, method="class")
-fancyRpartPlot(modFitA1)
 ```
 
 ```{r}
@@ -100,10 +99,10 @@ cmtree
 ```
 
 ```{r}
-plot(cmtree$table, col = cmtree$byClass, main = paste("Decision Tree Confusion Matrix: Accuracy =", round(cmtree$overall['Accuracy'], 4)))
+plot(cmtree$table, col = cmtree$byClass, main = paste("Confusion Matrix: Accuracy =", round(cmtree$overall['Accuracy'], 5)))
 ```
 
-## Predicting with Random Forests
+## Training Random Forests
 
 ```{r}
 set.seed(1)
@@ -119,15 +118,4 @@ Obviously, random forest gives us a better prediction rate, so we will use rando
 ```{r}
 predictionB2 <- predict(modFitB1, testing, type = "class")
 predictionB2
-```
-
-Write the result into a file for submission in another part of the project.
-```{r}
-pml_write_files <- function(x){
-    n = length(x)
-    for(i in 1:n){
-        filename = paste0("problem_id_",i,".txt")
-        write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
-    }
-}
 ```
